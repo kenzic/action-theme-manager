@@ -58,9 +58,11 @@ async function getOrCreateTheme(name) {
 
 async function run() {
   try {
-    const payload = JSON.stringify(github, undefined, 2)
-    console.log(`The event payload: ${payload}`);
-    let themeName = core.getInput('themeName');
+    // const payload = JSON.stringify(github.context, undefined, 2)
+    const branchName = github.context.ref.replace('refs/heads/', '');
+    let themeName = branchName;
+    // let themeName = core.getInput('themeName');
+
     if (!themeName) throw new Error('themeName required');
 
     if (themeName === 'master') {
