@@ -58,6 +58,8 @@ async function getOrCreateTheme(name) {
 
 async function run() {
   try {
+    const payload = JSON.stringify(github, undefined, 2)
+    console.log(`The event payload: ${payload}`);
     let themeName = core.getInput('themeName');
     if (!themeName) throw new Error('themeName required');
 
@@ -69,8 +71,7 @@ async function run() {
 
     core.setOutput('themeId', theme.id);
     // Get the JSON webhook payload for the event that triggered the workflow
-    // const payload = JSON.stringify(github.context.payload, undefined, 2)
-    // console.log(`The event payload: ${payload}`);
+
   } catch (error) {
     core.setFailed(error.message);
   }
