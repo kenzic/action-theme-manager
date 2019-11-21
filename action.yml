@@ -1,0 +1,13 @@
+name: 'Shopify Theme Manager'
+description: 'Manage the creation of shopify themes'
+inputs:
+  themeName:  # id of input
+    description: 'Name of the theme'
+    required: true
+    default: ''
+outputs:
+  themeId: # id of output
+    description: 'Theme id'
+runs:
+  using: 'node12'
+  main: 'index.js'
