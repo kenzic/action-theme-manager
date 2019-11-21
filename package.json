@@ -1,6 +1,8 @@
 {
   "dependencies": {
     "@actions/core": "^1.2.0",
-    "@actions/github": "^1.1.0"
+    "@actions/github": "^1.1.0",
+    "lodash": "^4.17.15",
+    "shopify-api-node": "^2.25.1"
   }
 }
