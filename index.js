@@ -6,76 +6,68 @@ const _ = require('lodash');
 const {
   STORE_NAME,
   API_KEY,
-  API_SECRET
+  API_SECRET,
 } = process.env;
 
 
 const shopify = new Shopify({
   shopName: STORE_NAME,
   apiKey: API_KEY,
-  password: API_SECRET
+  password: API_SECRET,
 });
 
 async function getTheme(themeId) {
-  return await shopify.theme.get(themeId)
+  return shopify.theme.get(themeId);
 }
 
 async function getAllThemes() {
-  return await shopify.theme.list();
+  return shopify.theme.list();
 }
 
 function filterUnpublished(themes) {
-  return _.filter(themes, (theme) => theme.role === "unpublished");
+  return _.filter(themes, (theme) => theme.role === 'unpublished');
 }
 
-function canDeployToTheme(theme) {
-  if (theme.role !== "unpublished") return false;
-
-  return true;
-}
-
-async function createNewTheme (name) {
-  return await shopify.theme.create({
-    name
-  })
+async function createNewTheme(name) {
+  return shopify.theme.create({
+    name,
+  });
 }
 
 function themeNameExists(name, themes) {
   return !!_.find(themes, (theme) => theme.name === name);
 }
 
-async function renameTheme (themeId, newName) {
-  return await shopify.theme.update(themeId, {
-    name: newName
+async function renameTheme(themeId, newName) {
+  return shopify.theme.update(themeId, {
+    name: newName,
   });
 }
 
-async function getOrCreateTheme (name) {
+async function getOrCreateTheme(name) {
   let themes = await getAllThemes();
   themes = filterUnpublished(themes);
   if (themeNameExists(name, themes)) {
     // TODO: what if there are two of the same name
     return _.find(themes, (theme) => theme.name === name);
-  } else {
-    const theme = await createNewTheme(name);
-    return theme;
   }
+
+  const theme = await createNewTheme(name);
+  return theme;
 }
 
-async function run () {
-  console.log('called')
+async function run() {
   try {
-    const themeName = core.getInput('themeName');
-    if (!themeName) throw new Error('themeName required')
+    let themeName = core.getInput('themeName');
+    if (!themeName) throw new Error('themeName required');
 
-    if (themeName === "master") {
-      themeName = "release-candidate";
+    if (themeName === 'master') {
+      themeName = 'release-candidate';
     }
-    console.log('themeName', themeName)
+
     const theme = await getOrCreateTheme(themeName);
 
-    console.log('output', theme)
-    core.setOutput("themeId", theme.id)
+    core.setOutput('themeId', theme.id);
     // Get the JSON webhook payload for the event that triggered the workflow
     // const payload = JSON.stringify(github.context.payload, undefined, 2)
     // console.log(`The event payload: ${payload}`);
@@ -84,4 +76,4 @@ async function run () {
   }
 }
 
-run()
+run();
