@@ -56,12 +56,22 @@ async function getOrCreateTheme(name) {
   return theme;
 }
 
+// Task Types:
+// - getOrCreate
+//    - name (optional) - if not provided, it uses the branch name
+// - get
+//    - themeId
+// - create
+//    - name
+// - delete
+//    - themeId
+
 async function run() {
   try {
-    // const payload = JSON.stringify(github.context, undefined, 2)
+    const payload = JSON.stringify(github, undefined, 2)
     const branchName = github.context.ref.replace('refs/heads/', '');
     let themeName = branchName;
-    // let themeName = core.getInput('themeName');
+    // let taskType = core.getInput('taskType');
 
     if (!themeName) throw new Error('themeName required');
 
@@ -73,7 +83,6 @@ async function run() {
 
     core.setOutput('themeId', theme.id);
     // Get the JSON webhook payload for the event that triggered the workflow
-
   } catch (error) {
     core.setFailed(error.message);
   }
