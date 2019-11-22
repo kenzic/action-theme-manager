@@ -68,7 +68,7 @@ async function getOrCreateTheme(name) {
 
 async function run() {
   try {
-    const payload = JSON.stringify(github, undefined, 2)
+    const payload = JSON.stringify(core, undefined, 2)
     console.log('payload', payload)
     const branchName = github.context.ref.replace('refs/heads/', '');
     let themeName = branchName;
