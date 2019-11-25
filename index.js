@@ -72,7 +72,7 @@ async function getOrCreateTheme(name) {
 
 async function run() {
   try {
-    const payload = JSON.stringify(core, undefined, 2)
+    const payload = JSON.stringify(github.context, undefined, 2)
     console.log('payload', payload)
     const branchName = github.context.ref.replace('refs/heads/', '');
     let themeName = branchName;
@@ -90,7 +90,7 @@ async function run() {
 
       core.setOutput('themeId', theme.id);
     } else if (taskType === 'get') {
-      const _themeName = core.getInput('taskType');
+      const _themeName = core.getInput('themeName');
       if (_themeName) {
         themeName = _themeName;
       }
