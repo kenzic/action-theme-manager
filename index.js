@@ -34,8 +34,12 @@ async function createNewTheme(name) {
   });
 }
 
+function findThemeByName(name, themes) {
+  return _.find(themes, (theme) => theme.name === name);
+}
+
 function themeNameExists(name, themes) {
-  return !!_.find(themes, (theme) => theme.name === name);
+  return !!findThemeByName(name, themes)
 }
 
 async function renameTheme(themeId, newName) {
@@ -72,17 +76,33 @@ async function run() {
     console.log('payload', payload)
     const branchName = github.context.ref.replace('refs/heads/', '');
     let themeName = branchName;
-    // let taskType = core.getInput('taskType');
+    let taskType = core.getInput('taskType');
 
-    if (!themeName) throw new Error('themeName required');
+    if (taskType === "get-or-create") {
 
-    if (themeName === 'master') {
-      themeName = 'release-candidate';
+      if (!themeName) throw new Error('themeName required');
+
+      if (themeName === 'master') {
+        themeName = 'release-candidate';
+      }
+
+      const theme = await getOrCreateTheme(themeName);
+
+      core.setOutput('themeId', theme.id);
+    } else if (taskType === 'get') {
+      const _themeName = core.getInput('taskType');
+      if (_themeName) {
+        themeName = _themeName;
+      }
+      const themes = await getAllThemes();
+      const theme = findThemeByName(themeName, themes);
+
+      if (!theme) throw new Error(`no theme found by name ${themeName}`);
+
+      core.setOutput('themeId', theme.id);
+    } else {
+      throw new Error('taskType required');
     }
-
-    const theme = await getOrCreateTheme(themeName);
-
-    core.setOutput('themeId', theme.id);
     // Get the JSON webhook payload for the event that triggered the workflow
   } catch (error) {
     core.setFailed(error.message);
