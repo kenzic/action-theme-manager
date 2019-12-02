@@ -3,17 +3,15 @@ const github = require('@actions/github');
 const Shopify = require('shopify-api-node');
 const _ = require('lodash');
 
-const {
-  STORE_NAME,
-  API_KEY,
-  API_SECRET,
-} = process.env;
+const { STORE_NAME, API_KEY, API_SECRET } = process.env;
 
+const GET_OR_CREATE = 'get-or-create';
+const GET = 'get';
 
 const shopify = new Shopify({
   shopName: STORE_NAME,
   apiKey: API_KEY,
-  password: API_SECRET,
+  password: API_SECRET
 });
 
 async function getTheme(themeId) {
@@ -39,7 +37,7 @@ function findThemeByName(name, themes) {
 }
 
 function themeNameExists(name, themes) {
-  return !!findThemeByName(name, themes)
+  return !!findThemeByName(name, themes);
 }
 
 async function renameTheme(themeId, newName) {
@@ -72,28 +70,22 @@ async function getOrCreateTheme(name) {
 
 async function run() {
   try {
-    const payload = JSON.stringify(github.context, undefined, 2)
-    console.log('payload', payload)
+    const payload = JSON.stringify(github.context, undefined, 2);
+
+    const taskType = core.getInput('taskType');
+    const inputThemeName = core.getInput('themeName');
     const branchName = github.context.ref.replace('refs/heads/', '');
-    let themeName = branchName;
-    let taskType = core.getInput('taskType');
 
-    if (taskType === "get-or-create") {
+    // the theme name will mirror the branch name unless it is provided as input `themeName`
+    let themeName = inputThemeName || branchName;
+    if (!themeName) throw new Error('themeName required');
 
-      if (!themeName) throw new Error('themeName required');
-
-      if (themeName === 'master') {
-        themeName = 'release-candidate';
-      }
-
+    if (taskType === GET_OR_CREATE) {
+      themeName = themeName === 'master' ? 'release-candidate' : themeName;
       const theme = await getOrCreateTheme(themeName);
 
       core.setOutput('themeId', theme.id);
-    } else if (taskType === 'get') {
-      const _themeName = core.getInput('themeName');
-      if (_themeName) {
-        themeName = _themeName;
-      }
+    } else if (taskType === GET) {
       const themes = await getAllThemes();
       const theme = findThemeByName(themeName, themes);
 
@@ -103,6 +95,7 @@ async function run() {
     } else {
       throw new Error('taskType required');
     }
+
     // Get the JSON webhook payload for the event that triggered the workflow
   } catch (error) {
     core.setFailed(error.message);
